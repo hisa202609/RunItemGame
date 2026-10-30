@@ -944,6 +944,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &977499559 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7365757607169809625, guid: d1b6d0c1eed45394fb907a1e39df41cb, type: 3}
+  m_PrefabInstance: {fileID: 99008284}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1179722044
 GameObject:
   m_ObjectHideFlags: 0
@@ -1207,10 +1212,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StageGenerator
   stageChips:
-  - {fileID: 290690548}
+  - {fileID: 7365757607169809625, guid: d1b6d0c1eed45394fb907a1e39df41cb, type: 3}
   startChipIndex: 1
   preInstantiate: 3
   generatedStageList:
+  - {fileID: 977499559}
   - {fileID: 290690548}
 --- !u!4 &1203509985
 Transform:
