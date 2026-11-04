@@ -1,136 +1,78 @@
-
-using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerFreeMove : MonoBehaviour
 {
-    const int MinLane = -2;
-    const int MaxLane = 2;
-    const float LaneWidth = 1.0f;
+    CharacterController controller; //CharacterControllerを参照できる変数
+    [SerializeField] private GameObject animatorBody; //Animatorコンポーネントをもっているオブジェクトの取得
+    Animator animator; //Animatorを参照できる変数
 
-    CharacterController controller;
-    [SerializeField] private GameObject animatorBody;
-    Animator animator;
+    //Vector3 moveDirection = new Vector3(0, 0, 0);
+    Vector3 moveDirection = Vector3.zero; //Moveメソッドに与える方向
 
-    Vector3 moveDirection = Vector3.zero;
-    int targetLane;
+    public float gravity; //重力値
+    public float speedZ; //前に進む力
+    public float speedJump; //ジャンプ力
 
-    public float gravity;
-    public float speedZ;
-    public float speedX;
-    public float speedJump;
+    private InputAction moveAction; //"Move"アクションを参照するための変数
+    private InputAction jumpAction; //"Jump"アクションを参照するための変数
 
-    [Header("前進加速力")]
-    public float accelerationZ;
-
-    // Input System
-    private InputAction moveAction;
-    private InputAction jumpAction;
-
-    // 入力間隔を管理するコルーチン
-    Coroutine resetIntervalCol;
-
-    void Start()
+        void Start()
     {
+        //Playerについているコンポーネントの取得
         controller = GetComponent<CharacterController>();
         //animator = animatorBody.GetComponent<Animator>();
 
-        // PlayerInputからアクションを取得
-        PlayerInput playerInput = GetComponent<PlayerInput>();
-        moveAction = playerInput.actions.FindAction("Move", true);
-        jumpAction = playerInput.actions.FindAction("Jump", true);
+        //PlayerInputコンポーネントに設定されている現Mapは何かを取得＝（Playerマップ）
+        InputActionMap actionMap = GetComponent<PlayerInput>().currentActionMap;
+        moveAction = actionMap.FindAction("Move"); //現マップ上にいる”Move”というアクションを取得
+        jumpAction = actionMap.FindAction("Jump"); //現マップ上にいる”Jump”というアクションを取得
     }
 
     void Update()
     {
+        //CharacterControllerコンポーネントが接地判断をもっている
+        //入力検知は地面にいる時
         if (controller.isGrounded)
         {
-            // コルーチンが動いていない場合だけ入力
-            if (resetIntervalCol == null)
+            //上下キーによる前か後ろかの値の設定
+            //if (Input.GetAxis("Vertical") != 0.0f)
+            if (moveAction.ReadValue<Vector2>().y != 0.0f)
             {
-                float horizontal = moveAction.ReadValue<Vector2>().x;
-
-                if (horizontal < -0.5f)
-                    MoveToLeft();
-                else if (horizontal > 0.5f)
-                    MoveToRight();
+                //moveDirection.z = Input.GetAxis("Vertical") * speedZ;
+                moveDirection.z = moveAction.ReadValue<Vector2>().y * speedZ;
+            }
+            else
+            {
+                moveDirection.z = 0;
             }
 
-            // レーンへの横移動
-            float ratioX =
-                (targetLane * LaneWidth - transform.position.x)
-                / LaneWidth;
-           moveDirection.x = ratioX * speedX;
+            //横回転 Rotateメソッドで直接回転させる
+            //transform.Rotate(0, Input.GetAxis("Horizontal") * 300 * Time.deltaTime, 0);
+            transform.Rotate(0, moveAction.ReadValue<Vector2>().x * 300 * Time.deltaTime, 0);
 
-            // 前進方向に徐々に加速
-            float acceleratedZ =
-                moveDirection.z + accelerationZ * Time.deltaTime;
-
-            moveDirection.z = Mathf.Clamp(
-                acceleratedZ, 0, speedZ);
-
-            // ジャンプ入力
+            //ジャンプボタン　押されている間
+            //if (Input.GetButton("Jump"))
             if (jumpAction.IsPressed())
             {
-                Jump();
+                moveDirection.y = speedJump; //y方向をセッティング
+                //animator.SetTrigger("jump"); //ジャンプアニメへの切替
             }
         }
 
-        // 重力
-        moveDirection.y -= gravity * Time.deltaTime;
+        //常に重力はかかっている
+        moveDirection.y -= gravity;
 
-        // ローカル座標からワールド座標へ変換
-        Vector3 globalDirection =
-            transform.TransformDirection(moveDirection);
-
+        //セッティングしたmoveDirectionの値を使ってMoveメソッドの発動
+        //※実際にPlayerが動く Time.deltaTimeでPC性能差によらないように動作安定
+        //回転を含む前進だと、グローバルな座標指定からズレるので、グローバルな座標になるように変換してからMoveに与える
+        Vector3 globalDirection = transform.TransformDirection(moveDirection);
         controller.Move(globalDirection * Time.deltaTime);
 
-        // 接地時に落下速度をリセット
-        if (controller.isGrounded)
-        {
-            moveDirection.y = 0;
-        }
-    }
+        //地面にいるのであればY成分の力を毎回0にリセット
+        if (controller.isGrounded) moveDirection.y = 0;
 
-    // 左レーンへ移動
-    public void MoveToLeft()
-    {
-        if (targetLane > MinLane)
-        {
-            targetLane--;
-
-            resetIntervalCol =
-                StartCoroutine(ResetIntervalCol());
-        }
-    }
-
-    // 右レーンへ移動
-    public void MoveToRight()
-    {
-        if (targetLane < MaxLane)
-        {
-            targetLane++;
-
-            resetIntervalCol =
-                StartCoroutine(ResetIntervalCol());
-        }
-    }
-
-    // 次の入力まで0.1秒待機
-    IEnumerator ResetIntervalCol()
-    {
-        yield return new WaitForSeconds(0.1f);
-        resetIntervalCol = null;
-    }
-
-    // ジャンプ
-    public void Jump()
-    {
-        if (controller.isGrounded)
-        {
-            moveDirection.y = speedJump;
-        //    animator.SetTrigger("Jump");
-        }
+        //アニメの制御
+        //animator.SetBool("run", moveDirection.z != 0.0f);
     }
 }
