@@ -11,8 +11,16 @@ public class CameraContorollor : MonoBehaviour
 
     public float followSpeed = 5.0f;  //追従スピード
 
+    [Header("カメラの初期位置")]
+    public Vector3 startPos = new Vector3(0,4.5f, -7.5f); //初期位置
+    public Quaternion startRot = Quaternion.Euler(15.5f, 0, 0); //初期回転
+
     void Start()
     {
+        //カメラの初期位置の設定
+        transform.position = startPos;
+        transform.rotation = startRot;
+
         player = GameObject.FindGameObjectWithTag("Player");
         
         //diff = target.transform.position - transform.position; //最初に維持するべき距離を定義

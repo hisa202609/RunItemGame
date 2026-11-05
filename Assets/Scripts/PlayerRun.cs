@@ -10,7 +10,6 @@ public class PlayerRun : MonoBehaviour
     const int DefaultLife = 3; //最大体力
     const float StunDuration = 0.5f; //硬直時間
 
-
     CharacterController controller; //CharacterControllerを参照できる変数
     [SerializeField] private GameObject animatorBody; //Animatorコンポーネントをもっているオブジェクトの取得
     Animator animator; //Animatorを参照できる変数
@@ -39,6 +38,9 @@ public class PlayerRun : MonoBehaviour
     private InputAction moveAction; //"Move"アクションを参照するための変数
     private InputAction jumpAction; //"Jump"アクションを参照するための変数
 
+    //[Header("プレイヤーの見た目オブジェクト")]
+    //public GameObject playerBody;
+
     //体力の残を参照できるメソッド
     public int Life()
     {
@@ -55,17 +57,42 @@ public class PlayerRun : MonoBehaviour
     {
         //Playerについているコンポーネントの取得
         controller = GetComponent<CharacterController>();
-        //animator = animatorBody.GetComponent<Animator>();
+        animator = animatorBody.GetComponent<Animator>();
 
         //PlayerInputコンポーネントに設定されている現Mapは何かを取得＝（Playerマップ）
         InputActionMap actionMap = GetComponent<PlayerInput>().currentActionMap;
         moveAction = actionMap.FindAction("Move"); //現マップ上にいる”Move”というアクションを取得
         jumpAction = actionMap.FindAction("Jump"); //現マップ上にいる”Jump”というアクションを取得
-
     }
 
     void Update()
     {
+        if(GameManeger.gameState == GameState.GameOver)
+        {
+            //ゲームオーバー時は動かない
+            return;
+        }
+        //点滅処理
+        if (IsStun())
+        {
+            float val = Mathf.Sin(Time.time * 50);
+
+            if (val > 0)
+            {
+                animatorBody.SetActive(true);
+            }
+            else
+            {
+                animatorBody.SetActive(false);
+            }
+        }
+        else //ダメージ中じゃない時
+        {
+            //姿を表す
+            animatorBody.SetActive(true);
+        }
+
+
         //CharacterControllerコンポーネントが接地判断をもっている
         //入力検知は地面にいる時
         if (controller.isGrounded)
@@ -155,15 +182,12 @@ public class PlayerRun : MonoBehaviour
 
     public void MoveToRight()
     {
-        if (IsStun()) return;
+        if (IsStun()) return; //スタン中は何も起こさない
 
-        // 現レーンがまだ最大でなければ
+        //現レーンがまだ最大でなければ
         if (targetLane < MaxLane)
         {
-            targetLane++; // 対象レーン番号をひとつ増やす
-
-            // 次の入力まで0.1秒のインターバル
-            resetIntervalCol = StartCoroutine(ResetIntervalCol());
+            targetLane++; //対象レーン番号をひとつ増やす
         }
     }
 
@@ -192,5 +216,15 @@ public class PlayerRun : MonoBehaviour
     public void LifeDown()
     {
         life--;
+
+        //UIControllerを探して、ライフ更新メソッド
+        UIController controller = GameObject.FindAnyObjectByType<UIController>();
+        controller.UpdateLife();
+
+        //体力が0になったらゲームオーバー
+        if (life <= 0)
+        {
+            GameManeger.gameState = GameState.GameOver;
+        }
     }
 }

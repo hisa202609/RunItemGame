@@ -55,6 +55,10 @@ public class PlayerShooter : MonoBehaviour
         {
             bulletRemaining--; //残弾を減らす
 
+            UIController controller =
+            GameObject.FindAnyObjectByType<UIController>();
+
+            controller.UpdateBullet();
 
             // 弾を生成する
             GameObject newBullet = Instantiate(

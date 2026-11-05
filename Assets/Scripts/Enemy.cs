@@ -1,32 +1,36 @@
-
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] private int enemyLife = 3; // 敵の体力
-    [SerializeField] private GameObject enemyBody; // 敵の体
+    private int enemyLife = 3; //敵の体力
+    public GameObject enemyBody; //見た目のオブジェクトの情報
 
-    // 無敵時間
-    [SerializeField] private float invincibleTime = 1.0f;
+    //無敵時間の秒数
+    public float freezeTime = 1.0f;
 
-    // ダメージ中のコルーチン
+    //ダメージ中のコルーチンを参照する変数
     Coroutine damageStart;
+
+    public GameObject effectObject; //撃破時の生成エフェクト
 
     void Update()
     {
-        // ダメージ中なら点滅する
+        //もしもダメージコルーチン変数がnullでなければ(ダメージ中）
         if (damageStart != null)
         {
-            float val = Mathf.Sin(Time.time * 20.0f);
-
+            //点滅処理
+            //valが一定周期で正か負か 値を決める
+            float val = Mathf.Sin(Time.time * 50);//三角関数と時間
             if (val > 0)
             {
-                //メッシュレンダラーを有効にする
+                //見た目のMeshRendererをON
                 enemyBody.GetComponent<MeshRenderer>().enabled = true;
             }
             else
             {
+                //見た目のMeshRendererをOFF
                 enemyBody.GetComponent<MeshRenderer>().enabled = false;
             }
 
@@ -36,36 +40,48 @@ public class Enemy : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // ダメージ中でなければ
+        //ダメージコルーチンが発動していなければ（ダメージ中でなければ）
         if (damageStart == null)
         {
-            // 弾に当たったとき
-            if (other.gameObject.CompareTag("Bullet"))
+            //ぶつかった相手がBulletなら
+            if (other.gameObject.tag == "Bullet")
             {
-                enemyLife--;
-
+                enemyLife--; //体力が1減る
                 if (enemyLife <= 0)
                 {
-                    Destroy(gameObject);
+                    CreateEffect();
+                    Destroy(gameObject); //消滅
                 }
-                else
+                else //体力が残っていれば
                 {
-                    damageStart = StartCoroutine(DamageStart());
+                    damageStart = StartCoroutine(DamageStart()); //コルーチンの発動
                 }
+            }
+            //ぶつかった相手がSlashなら即撃破
+            else if (other.gameObject.tag == "Slash")
+            {
+                CreateEffect();
+                Destroy(gameObject);
             }
         }
     }
 
-    // ダメージ処理のコルーチン
+    //時間差でダメージ状態を解くコルーチン
     IEnumerator DamageStart()
     {
-        // 無敵時間が終わるまで待つ
-        yield return new WaitForSeconds(invincibleTime);
-
-        // 敵の表示を元に戻す
-        enemyBody.GetComponent<MeshRenderer>().enabled = true;
-
-        // ダメージ状態を解除
+        //freezeTimeまってから、ダメージコルーチン変数を解放
+        yield return new WaitForSeconds(freezeTime);
         damageStart = null;
+
+        //見た目のMeshRendererをON
+        enemyBody.GetComponent<MeshRenderer>().enabled = true;
+    }
+
+    void CreateEffect()
+    {
+        Instantiate(
+             effectObject,
+             transform.position,
+             Quaternion.identity);
     }
 }
