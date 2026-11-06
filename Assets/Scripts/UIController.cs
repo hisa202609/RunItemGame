@@ -40,7 +40,6 @@ public class UIController : MonoBehaviour
         statusText.SetActive(false);
     }
 
-    // Update is called once per frame
     void Update()
     {
 

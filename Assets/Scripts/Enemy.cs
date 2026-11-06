@@ -46,6 +46,8 @@ public class Enemy : MonoBehaviour
             //ぶつかった相手がBulletなら
             if (other.gameObject.tag == "Bullet")
             {
+                Debug.Log("敵の残り体力：" + enemyLife);
+
                 enemyLife--; //体力が1減る
                 if (enemyLife <= 0)
                 {
@@ -60,6 +62,7 @@ public class Enemy : MonoBehaviour
             //ぶつかった相手がSlashなら即撃破
             else if (other.gameObject.tag == "Slash")
             {
+                Debug.Log("敵にスラッシュ攻撃が命中！");
                 CreateEffect();
                 Destroy(gameObject);
             }

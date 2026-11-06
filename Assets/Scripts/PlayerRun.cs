@@ -67,9 +67,24 @@ public class PlayerRun : MonoBehaviour
 
     void Update()
     {
-        if(GameManeger.gameState == GameState.GameOver)
+        if (GameManeger.gameState == GameState.GameOver ||
+            GameManeger.gameState == GameState.GameEnd)
         {
-            //ゲームオーバー時は動かない
+            // ゲームオーバー中もスタンの残り時間を減らす
+            if (recoverTime > 0.0f)
+            {
+                recoverTime -= Time.deltaTime;
+
+                // スタン中は点滅
+                animatorBody.SetActive(Mathf.Sin(Time.time * 50) > 0);
+            }
+            else
+            {
+                // スタン終了後は表示状態に戻す
+                animatorBody.SetActive(true);
+            }
+
+            // 移動処理は行わない
             return;
         }
         //点滅処理
@@ -188,6 +203,7 @@ public class PlayerRun : MonoBehaviour
         if (targetLane < MaxLane)
         {
             targetLane++; //対象レーン番号をひとつ増やす
+            resetIntervalCol = StartCoroutine(ResetIntervalCol());
         }
     }
 
@@ -217,14 +233,34 @@ public class PlayerRun : MonoBehaviour
     {
         life--;
 
-        //UIControllerを探して、ライフ更新メソッド
         UIController controller = GameObject.FindAnyObjectByType<UIController>();
         controller.UpdateLife();
 
-        //体力が0になったらゲームオーバー
         if (life <= 0)
         {
             GameManeger.gameState = GameState.GameOver;
         }
     }
+
+    public void LifeUp(int amount)
+    {
+        life = Mathf.Min(life + amount, DefaultLife);
+
+        UIController ui = FindAnyObjectByType<UIController>();
+        ui.UpdateLife();
+    }
+
+    //IEnumerator GameOverSequence()
+    //{
+    //    // 最後のダメージ点滅が終わるまで待つ
+    //    yield return new WaitForSeconds(StunDuration);
+
+    //    // プレイヤーを表示状態に戻す
+    //    animatorBody.SetActive(true);
+
+    //    // ゲームオーバーへ移行
+    //    GameManeger.gameState = GameState.GameOver;
+    //}
+
+
 }

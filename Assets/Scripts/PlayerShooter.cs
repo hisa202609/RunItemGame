@@ -25,10 +25,17 @@ public class PlayerShooter : MonoBehaviour
     public void AddBullet(int recoverAmount)
     {
         bulletRemaining += recoverAmount;
+
         if (bulletRemaining > startRemaining)
         {
             bulletRemaining = startRemaining;
         }
+
+        // UIの残弾表示を更新
+        UIController controller =
+            GameObject.FindAnyObjectByType<UIController>();
+
+        controller.UpdateBullet();
     }
 
     InputAction shootAction;
@@ -42,7 +49,11 @@ public class PlayerShooter : MonoBehaviour
     }
     void Update()
     {
-        // Attackボタンが押された時、かつ残弾があればShoot()を呼ぶ
+        if (GameManeger.gameState != GameState.IsPlay)
+        {
+            return;
+        }
+
         if (shootAction.WasPerformedThisFrame() && bulletRemaining > 0)
         {
             Shoot();
@@ -78,6 +89,7 @@ public class PlayerShooter : MonoBehaviour
             shootStart = StartCoroutine(ShootStart());
         }
     }
+
 
     // インターバル用コルーチン
     IEnumerator ShootStart()
