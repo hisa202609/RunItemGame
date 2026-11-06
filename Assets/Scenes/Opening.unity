@@ -902,6 +902,7 @@ GameObject:
   - component: {fileID: 1900760804}
   - component: {fileID: 1900760803}
   - component: {fileID: 1900760807}
+  - component: {fileID: 1900760808}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1019,9 +1020,28 @@ MonoBehaviour:
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: 272f6d14-89ba-496f-b7ff-215263d3219f
+  m_DefaultActionMap: UI
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &1900760808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900760802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08ebf4f0da52fd040b5e0ffe56f324cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TalkManager
+  currentTalkData: {fileID: 11400000, guid: 77c4e10f5757ec74da0b26b1f71dbf53, type: 2}
+  talkPanel: {fileID: 149448741}
+  nameText: {fileID: 603922152}
+  messageText: {fileID: 1002853164}
+  faceImage: {fileID: 588391812}
+  textSpeed: 0.04
+  nextScene: SampleScene
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

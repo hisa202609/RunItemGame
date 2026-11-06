@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Opening
   m_EditorClassIdentifier: Assembly-CSharp::TalkData
   talks:
-  - name: 
-    message: 
+  - name: 123454
+    message: 5555555555555555555555
     faceImage: {fileID: 0}
-  - name: 
-    message: 
+  - name: 123454
+    message: 555555555
     faceImage: {fileID: 0}
-  - name: 
-    message: 
+  - name: 45348
+    message: 555555555555555555555555555555
     faceImage: {fileID: 0}
